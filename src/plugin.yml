@@ -1,0 +1,8 @@
+name: ProtectingWolf
+main: de.sunaru.ProtectingWolf.ProtectingWolf
+version: 0.2.0
+author: h4rvk4
+commands:
+  pwolf:
+    description: Modify ProtectingWolf configuration settings.
+    usage: /<command>
