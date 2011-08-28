@@ -1,8 +1,6 @@
 package de.sunaru.ProtectingWolf;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.entity.CraftMonster;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
@@ -17,18 +15,15 @@ import org.bukkit.event.entity.EntityTargetEvent;
 public class ProtectingWolfEntityListener extends EntityListener {
 
 	public static ProtectingWolf plugin;
-	private HashMap upcomingVictims[] = new HashMap[2];
 
 	public ProtectingWolfEntityListener(ProtectingWolf instance) {
 		plugin = instance;
-
-		upcomingVictims[0] = new HashMap<Integer, Player>();
-		upcomingVictims[1] = new HashMap<Integer, Entity>();
 	}
 
 	@Override
 	public void onEntityTarget(EntityTargetEvent event) {
 		ProtectingWolfConfig config = ProtectingWolfConfig.getInstance();
+		ProtectingWolfVictims victims = ProtectingWolfVictims.getInstance();
 	
 		if (event.getTarget() instanceof CraftPlayer && event.getEntity() instanceof CraftMonster) {
 			Player player = (Player) event.getTarget();
@@ -48,67 +43,83 @@ public class ProtectingWolfEntityListener extends EntityListener {
 				}
 			}
 			
-			if (!this.upcomingVictims[0].containsValue(player)) {
+			
+			if (!victims.isPlayerUnderAttack(player)) {
 				if (config.getValue(player, ProtectingWolfConfig.CONFIG_MSGONATTACK) == 1) {
 					player.sendMessage(ChatColor.RED + " Beware, your dogs spotted enemies.");
 				}
 			}
 
-			this.upcomingVictims[0].put(event.getEntity().getEntityId(), player);
-			this.upcomingVictims[1].put(event.getEntity().getEntityId(), event.getEntity());
+			victims.addDisputants(event.getEntity(), player);
 		}
 	}
 
 	@Override
 	public void onEntityDeath(EntityDeathEvent event) {
-		ProtectingWolfConfig config = ProtectingWolfConfig.getInstance();
-	
-		if (this.upcomingVictims[0].containsKey(event.getEntity().getEntityId())) {
-			Player player = (Player)this.upcomingVictims[0].get(event.getEntity().getEntityId());
-			this.upcomingVictims[0].remove(event.getEntity().getEntityId());
-			this.upcomingVictims[1].remove(event.getEntity().getEntityId());
-			
-			if (this.upcomingVictims[0].containsValue(player)) {
-				Integer key = ProtectingWolfLibrary.getHashKeyByValue(this.upcomingVictims[0], player);
-				Entity newVictim = (Entity)this.upcomingVictims[1].get(key);
-				
-				if (newVictim != null) {
-					List<Wolf> wolves = ProtectingWolfLibrary.getWolves(player);
-					if (wolves.size() > 0) {
-						for (Wolf wolf : wolves) {
-							ProtectingWolfLibrary.actionWolfAttack(player, wolf, newVictim, event.getEntity());
-						}
-					}
-				}
-			}
-			else {
-				if (config.getValue(player, ProtectingWolfConfig.CONFIG_MSGONPEACE) == 1) {
-					player.sendMessage(ChatColor.RED + " Your dogs don't see more enemies.");
-				}
-			}
+		ProtectingWolfVictims victims = ProtectingWolfVictims.getInstance();
+		
+		if (victims.isMonsterUnderAttack(event.getEntity().getEntityId())) {
+			this.handleDeadMonster(event);
 		}
 		else if (event.getEntity() instanceof Wolf) {
-			Wolf deadWolf = (Wolf)event.getEntity();
-			if (deadWolf.isTamed()) {
-				List<Player> players = deadWolf.getWorld().getPlayers();
-				if (players.size() > 0) {
-					for (Player player : players) {
-						if (player.isOnline() && player.getName().equalsIgnoreCase(ProtectingWolfLibrary.getWolfOwnerName(deadWolf))) {
-							if (config.getValue(player, ProtectingWolfConfig.CONFIG_MSGONDEATH) == 1) {
-								player.sendMessage(ChatColor.RED + " One of your dogs died.");
-							}
-							break;
-						}
+			this.handleDeadWolf(event);
+		}
+		else if (event.getEntity() instanceof Player) {
+			this.handleDeadPlayer(event);
+		}
+	}
+	
+	private void handleDeadMonster(EntityDeathEvent event) {
+		ProtectingWolfVictims victims = ProtectingWolfVictims.getInstance();
+		ProtectingWolfConfig config = ProtectingWolfConfig.getInstance();
+
+		Player player = victims.getPlayer(event.getEntity().getEntityId());
+		victims.removeDisputants(event.getEntity().getEntityId());
+
+		if (victims.isPlayerUnderAttack(player)) {
+			Entity newVictim = victims.getNextPlayerDisputant(player);
+
+			if (newVictim != null) {
+				List<Wolf> wolves = ProtectingWolfLibrary.getWolves(player);
+				if (wolves.size() > 0) {
+					for (Wolf wolf : wolves) {
+						ProtectingWolfLibrary.actionWolfAttack(player, wolf, newVictim, event.getEntity());
 					}
 				}
 			}
 		}
-		else if (event.getEntity() instanceof Player) {
-			while (this.upcomingVictims[0].containsValue(event.getEntity())) {
-				Integer key = ProtectingWolfLibrary.getHashKeyByValue(this.upcomingVictims[0], event.getEntity());
-				this.upcomingVictims[0].remove(key);
-				this.upcomingVictims[1].remove(key);
+		else {
+			if (config.getValue(player, ProtectingWolfConfig.CONFIG_MSGONPEACE) == 1) {
+				player.sendMessage(ChatColor.RED + " Your dogs don't see more enemies.");
 			}
+		}
+	}
+	
+	private void handleDeadWolf(EntityDeathEvent event) {
+		ProtectingWolfConfig config = ProtectingWolfConfig.getInstance();
+
+		Wolf deadWolf = (Wolf)event.getEntity();
+		if (deadWolf.isTamed()) {
+			List<Player> players = deadWolf.getWorld().getPlayers();
+			if (players.size() > 0) {
+				for (Player player : players) {
+					if (player.isOnline() && player.getName().equalsIgnoreCase(ProtectingWolfLibrary.getWolfOwnerName(deadWolf))) {
+						if (config.getValue(player, ProtectingWolfConfig.CONFIG_MSGONDEATH) == 1) {
+							player.sendMessage(ChatColor.RED + " One of your dogs died.");
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+	private void handleDeadPlayer(EntityDeathEvent event) {
+		ProtectingWolfVictims victims = ProtectingWolfVictims.getInstance();
+
+		while (victims.isPlayerUnderAttack((Player)event.getEntity())) {
+			Entity newVictim = victims.getNextPlayerDisputant((Player)event.getEntity());
+			victims.removeDisputants(newVictim.getEntityId());
 		}
 	}
 }

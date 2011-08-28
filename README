@@ -1,0 +1,7 @@
+ProtectingWolf - a plugin for the craftBukkit server
+----------------------------------------------------
+
+Directories:
+dist/ - development snapshot
+releases/ - releases (suprising, huh? ;))
+src/ - source code

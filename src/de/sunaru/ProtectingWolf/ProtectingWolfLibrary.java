@@ -65,7 +65,7 @@ public class ProtectingWolfLibrary {
 		}
 
 		boolean found = false;
-		List<Entity> nearBy = wolf.getNearbyEntities(40, 40, 20);
+		List<Entity> nearBy = wolf.getNearbyEntities(40, 10, 20);
 		if (nearBy.size() > 0) {
 			for (Entity nearByEntity : nearBy) {
 				if (nearByEntity.getEntityId() == newVictim.getEntityId()) {
