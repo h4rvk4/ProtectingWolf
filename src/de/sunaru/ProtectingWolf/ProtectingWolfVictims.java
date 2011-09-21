@@ -4,12 +4,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 public class ProtectingWolfVictims {
 	private static int PLAYERS = 0;
 	private static int MONSTERS = 1;
+	
+	static final Logger log = Logger.getLogger("Minecraft");
 	
 	private boolean cleanUpLock = false;
 
@@ -61,21 +64,26 @@ public class ProtectingWolfVictims {
 	}
 	
 	public void cleanUpDisputants() {
-		if (!cleanUpLock) {
-			cleanUpLock = true;
-			Set keys = this.upcomingVictims[PLAYERS].keySet();
-			Iterator it = keys.iterator();
-			while (it.hasNext()) {
-				Object key = it.next();
-				Entity entity = (Entity)this.upcomingVictims[PLAYERS].get(key);
-				List<Entity> nearBy = entity.getNearbyEntities(40, 10, 20);
-				if (nearBy.size() > 0) {
-					if (!nearBy.contains((Entity)this.upcomingVictims[MONSTERS].get(key))) {
-						this.removeDisputants((Integer)key);
+		try {
+			if (!cleanUpLock) {
+				cleanUpLock = true;
+				Set keys = this.upcomingVictims[PLAYERS].keySet();
+				Iterator it = keys.iterator();
+				while (it.hasNext()) {
+					Object key = it.next();
+					Entity entity = (Entity)this.upcomingVictims[PLAYERS].get(key);
+					List<Entity> nearBy = entity.getNearbyEntities(40, 10, 20);
+					if (nearBy.size() > 0) {
+						if (!nearBy.contains((Entity)this.upcomingVictims[MONSTERS].get(key))) {
+							this.removeDisputants((Integer)key);
+						}
 					}
 				}
+				cleanUpLock = false;
 			}
-			cleanUpLock = false;
+		}
+		catch (Exception e) {
+			log.info(ProtectingWolf.pluginPrefix+" Collision in cleanUpDisputants");
 		}
 	}
 }
