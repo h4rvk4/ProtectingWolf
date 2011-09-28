@@ -7,8 +7,8 @@ import org.bukkit.util.config.Configuration;
 
 public class ProtectingWolfConfig {
 	
-	private HashMap settings[] = new HashMap[6];
-	private String settingNames[] = { "kamikaze-dog", "till-death", "sit-is-sit", "msg-on-attack", "msg-on-peace", "msg-on-death" };
+	private HashMap settings[] = new HashMap[7];
+	private String settingNames[] = { "kamikaze-dog", "till-death", "sit-is-sit", "msg-on-attack", "msg-on-peace", "msg-on-death", "attack-click" };
 	
 	public static int CONFIG_KAMIKAZEDOG = 0;
 	public static int CONFIG_TILLDEATH = 1;
@@ -16,6 +16,7 @@ public class ProtectingWolfConfig {
 	public static int CONFIG_MSGONATTACK = 3;
 	public static int CONFIG_MSGONPEACE = 4;
 	public static int CONFIG_MSGONDEATH = 5;
+	public static int CONFIG_RIGHTCLICKATTACK = 6;
 
 	private static ProtectingWolfConfig instance = null;
 
@@ -104,5 +105,6 @@ public class ProtectingWolfConfig {
 		settings[CONFIG_MSGONATTACK].put(null, 1);
 		settings[CONFIG_MSGONPEACE].put(null, 1);
 		settings[CONFIG_MSGONDEATH].put(null, 1);
+		settings[CONFIG_RIGHTCLICKATTACK].put(null, 0);
 	}
 }

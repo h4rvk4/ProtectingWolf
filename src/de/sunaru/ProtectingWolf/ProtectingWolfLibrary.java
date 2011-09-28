@@ -18,7 +18,8 @@ public class ProtectingWolfLibrary {
 		return wolf.getHandle().getOwnerName();
 	}
 
-	public static List<Wolf> getWolves(Player player) {
+	/** @deprecated */
+	public static List<Wolf> getAllWolves(Player player) {
 		List<Wolf> wolves = new ArrayList<Wolf>();
 
 		for (LivingEntity entity : player.getWorld().getLivingEntities()) {
@@ -34,18 +35,54 @@ public class ProtectingWolfLibrary {
 		return wolves;
 	}
 	
+	public static List<Wolf> getNearByWolves(Player player) {
+		List<Wolf> wolves = new ArrayList<Wolf>();
+
+		for (LivingEntity entity : player.getWorld().getLivingEntities()) {
+			if (entity instanceof Wolf) {
+				Wolf wolf = (Wolf) entity;
+
+				if (wolf.isTamed() && player.getName().equals(getWolfOwnerName(wolf))) {
+					boolean found = false;
+					List<Entity> nearBy = wolf.getNearbyEntities(40, 10, 20);
+					if (nearBy.size() > 0) {
+						for (Entity nearByEntity : nearBy) {
+							if (nearByEntity.getEntityId() == player.getEntityId()) {
+								found = true;
+								break;
+							}
+						}
+						if (found) {
+							wolves.add(wolf);
+						}
+					}
+				}
+			}
+		}
+
+		return wolves;
+	}
+		
 	public static boolean actionWolfAttack(Player player, Wolf wolf, Entity entity) {
-		return actionWolfAttack(player, wolf, entity, null);
+		return actionWolfAttack(player, wolf, entity, null, false);
+	}
+	
+	public static boolean actionWolfAttack(Player player, Wolf wolf, Entity entity, boolean forceAttack) {
+		return actionWolfAttack(player, wolf, entity, null, forceAttack);
+	}
+	
+	public static boolean actionWolfAttack(Player player, Wolf wolf, Entity entity, Entity oldVictim) {
+		return actionWolfAttack(player, wolf, entity, oldVictim, false);
 	}
 
-	public static boolean actionWolfAttack(Player player, Wolf wolf, Entity newVictim, Entity oldVictim) {
+	public static boolean actionWolfAttack(Player player, Wolf wolf, Entity newVictim, Entity oldVictim, boolean forceAttack) {
 		if (wolf.getTarget() != null) {
 			if (oldVictim != null) {
 				if (wolf.getTarget().getEntityId() != oldVictim.getEntityId()) {
 					return false;
 				}
 			}
-			else {
+			else if (forceAttack == false) {
 				if (!wolf.getTarget().isDead()) {
 					return false;
 				}

@@ -33,19 +33,23 @@ public class ProtectingWolfVictims {
 	}
 	
 	public boolean isPlayerUnderAttack(Player player) {
-		return this.upcomingVictims[PLAYERS].containsValue(player);
+		HashMap upcomingClone = (HashMap)this.upcomingVictims[PLAYERS].clone();
+		return upcomingClone.containsValue(player);
 	}
 	
 	public boolean isMonsterUnderAttack(int monsterId) {
-		return this.upcomingVictims[MONSTERS].containsKey(monsterId);
+		HashMap upcomingClone = (HashMap)this.upcomingVictims[MONSTERS].clone();
+		return upcomingClone.containsKey(monsterId);
 	}
 
 	public Player getPlayer(int monsterId) {
-		return (Player)this.upcomingVictims[PLAYERS].get(monsterId);
+		HashMap upcomingClone = (HashMap)this.upcomingVictims[PLAYERS].clone();
+		return (Player)upcomingClone.get(monsterId);
 	}
 	
 	public Entity getMonster(int monsterId) {
-		return (Entity)this.upcomingVictims[MONSTERS].get(monsterId);
+		HashMap upcomingClone = (HashMap)this.upcomingVictims[MONSTERS].clone();
+		return (Entity)upcomingClone.get(monsterId);
 	}
 	
 	public void addDisputants(Entity entity, Player player) {
@@ -82,8 +86,6 @@ public class ProtectingWolfVictims {
 				cleanUpLock = false;
 			}
 		}
-		catch (Exception e) {
-			log.info(ProtectingWolf.pluginPrefix+" Collision in cleanUpDisputants");
-		}
+		catch (Exception e) { }
 	}
 }

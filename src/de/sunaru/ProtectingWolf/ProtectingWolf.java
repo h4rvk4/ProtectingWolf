@@ -11,6 +11,7 @@ public class ProtectingWolf extends JavaPlugin {
 
 	private final ProtectingWolfEntityListener entityListener = new ProtectingWolfEntityListener(this);
 	private final ProtectingWolfPlayerListener playerListener = new ProtectingWolfPlayerListener(this);
+	private static int schedulerId = -1;
 	static final Logger log = Logger.getLogger("Minecraft");
 	
 	static String pluginPrefix = "";
@@ -24,12 +25,15 @@ public class ProtectingWolf extends JavaPlugin {
 		pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLAYER_KICK, playerListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLAYER_TELEPORT, playerListener, Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_INTERACT_ENTITY, playerListener, Event.Priority.Normal, this);
 		
 		ProtectingWolfConfig.getInstance().loadConfig();
 		
 		this.getCommand("pwolf").setExecutor(new ProtectingWolfCommands(this));
 		
-		this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new ProtectingWolfScheduler(), 0L, 600L);
+		ProtectingWolfScheduler wolfScheduler = new ProtectingWolfScheduler(this);
+		schedulerId = this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, wolfScheduler, 100L, 600L);
+		System.out.println(schedulerId);
 		
 		PluginDescriptionFile pdfFile = this.getDescription();
 		pluginVersion = pdfFile.getVersion();
@@ -39,6 +43,12 @@ public class ProtectingWolf extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
+		this.getServer().getScheduler().cancelTask(schedulerId);
+		
+		System.out.println("active workers:" + this.getServer().getScheduler().getActiveWorkers().size());
+		for (int i = 0; i < this.getServer().getScheduler().getActiveWorkers().size(); i++) {
+			System.out.println(this.getServer().getScheduler().getActiveWorkers().get(i).getOwner()+" "+this.getServer().getScheduler().getActiveWorkers().get(i).getTaskId());
+		}
 		log.log(Level.INFO, pluginPrefix + " Plugin v" + pluginVersion + " has been disabled.");
 	}
 }

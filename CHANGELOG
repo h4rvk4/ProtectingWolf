@@ -4,6 +4,14 @@ ProtectingWolf Changelog
 For more information see:
 https://github.com/haruka/ProtectingWolf
 
+Version 0.4.0
+------------- -- -
+ + Command wolves to attack by right click
+   (wolves only attacks players and tamed wolves on pvp-servers)
+ + Tested with RB 1185
+ + Improved list handling
+ + Only warn user if wolves are near by
+
 Version 0.3.1
 ------------- -- -
  + Small work around for collision exception

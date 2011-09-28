@@ -27,7 +27,7 @@ public class ProtectingWolfEntityListener extends EntityListener {
 	
 		if (event.getTarget() instanceof CraftPlayer && event.getEntity() instanceof CraftMonster) {
 			Player player = (Player) event.getTarget();
-			List<Wolf> wolves = ProtectingWolfLibrary.getWolves(player);
+			List<Wolf> wolves = ProtectingWolfLibrary.getNearByWolves(player);
 
 			if (event.getEntity() instanceof CraftCreeper) {
 				if (config.getValue(player, ProtectingWolfConfig.CONFIG_KAMIKAZEDOG) == 0) {
@@ -43,9 +43,8 @@ public class ProtectingWolfEntityListener extends EntityListener {
 				}
 			}
 			
-			
 			if (!victims.isPlayerUnderAttack(player)) {
-				if (config.getValue(player, ProtectingWolfConfig.CONFIG_MSGONATTACK) == 1) {
+				if (wolves.size() > 0 && config.getValue(player, ProtectingWolfConfig.CONFIG_MSGONATTACK) == 1) {
 					player.sendMessage(ChatColor.RED + " Beware, your dogs spotted enemies.");
 				}
 			}
@@ -80,7 +79,7 @@ public class ProtectingWolfEntityListener extends EntityListener {
 			Entity newVictim = victims.getNextPlayerDisputant(player);
 
 			if (newVictim != null) {
-				List<Wolf> wolves = ProtectingWolfLibrary.getWolves(player);
+				List<Wolf> wolves = ProtectingWolfLibrary.getNearByWolves(player);
 				if (wolves.size() > 0) {
 					for (Wolf wolf : wolves) {
 						ProtectingWolfLibrary.actionWolfAttack(player, wolf, newVictim, event.getEntity());
@@ -90,7 +89,10 @@ public class ProtectingWolfEntityListener extends EntityListener {
 		}
 		else {
 			if (config.getValue(player, ProtectingWolfConfig.CONFIG_MSGONPEACE) == 1) {
-				player.sendMessage(ChatColor.RED + " Your dogs don't see more enemies.");
+				List<Wolf> wolves = ProtectingWolfLibrary.getNearByWolves(player);
+				if (wolves.size() > 0) {
+					player.sendMessage(ChatColor.RED + " Your dogs don't see more enemies.");
+				}
 			}
 		}
 	}
