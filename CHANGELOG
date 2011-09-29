@@ -11,6 +11,8 @@ Version 0.4.0
  + Tested with RB 1185
  + Improved list handling
  + Only warn user if wolves are near by
+ + Fixed scheduler problem
+   (Thanks to: krinsdeath, Belf)
 
 Version 0.3.1
 ------------- -- -

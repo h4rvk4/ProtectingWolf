@@ -32,8 +32,7 @@ public class ProtectingWolf extends JavaPlugin {
 		this.getCommand("pwolf").setExecutor(new ProtectingWolfCommands(this));
 		
 		ProtectingWolfScheduler wolfScheduler = new ProtectingWolfScheduler(this);
-		schedulerId = this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, wolfScheduler, 100L, 600L);
-		System.out.println(schedulerId);
+		schedulerId = this.getServer().getScheduler().scheduleSyncRepeatingTask(this, wolfScheduler, 100L, 600L);
 		
 		PluginDescriptionFile pdfFile = this.getDescription();
 		pluginVersion = pdfFile.getVersion();
@@ -45,10 +44,6 @@ public class ProtectingWolf extends JavaPlugin {
 	public void onDisable() {
 		this.getServer().getScheduler().cancelTask(schedulerId);
 		
-		System.out.println("active workers:" + this.getServer().getScheduler().getActiveWorkers().size());
-		for (int i = 0; i < this.getServer().getScheduler().getActiveWorkers().size(); i++) {
-			System.out.println(this.getServer().getScheduler().getActiveWorkers().get(i).getOwner()+" "+this.getServer().getScheduler().getActiveWorkers().get(i).getTaskId());
-		}
 		log.log(Level.INFO, pluginPrefix + " Plugin v" + pluginVersion + " has been disabled.");
 	}
 }
