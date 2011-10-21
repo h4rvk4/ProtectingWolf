@@ -4,6 +4,11 @@ ProtectingWolf Changelog
 For more information see:
 https://github.com/haruka/ProtectingWolf
 
+Version 0.5.0
+------------- -- -
+ + Works with new config-system
+ + Updated to RB 1337
+
 Version 0.4.0
 ------------- -- -
  + Command wolves to attack by right click
