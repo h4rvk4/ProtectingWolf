@@ -8,6 +8,7 @@ import org.bukkit.craftbukkit.entity.CraftCreeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wolf;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityListener;
 import org.bukkit.event.entity.EntityTargetEvent;
@@ -24,7 +25,7 @@ public class ProtectingWolfEntityListener extends EntityListener {
 	public void onEntityTarget(EntityTargetEvent event) {
 		ProtectingWolfConfig config = ProtectingWolfConfig.getInstance();
 		ProtectingWolfVictims victims = ProtectingWolfVictims.getInstance();
-	
+
 		if (event.getTarget() instanceof CraftPlayer && event.getEntity() instanceof CraftMonster) {
 			Player player = (Player) event.getTarget();
 			List<Wolf> wolves = ProtectingWolfLibrary.getNearByWolves(player);
@@ -42,7 +43,7 @@ public class ProtectingWolfEntityListener extends EntityListener {
 					}
 				}
 			}
-			
+
 			if (!victims.isPlayerUnderAttack(player)) {
 				if (wolves.size() > 0 && config.getValue(player, ProtectingWolfConfig.CONFIG_MSGONATTACK) == 1) {
 					player.sendMessage(ChatColor.RED + " Beware, your dogs spotted enemies.");
@@ -54,9 +55,31 @@ public class ProtectingWolfEntityListener extends EntityListener {
 	}
 
 	@Override
+	public void onEntityDamage(EntityDamageEvent event) {
+		ProtectingWolfConfig config = ProtectingWolfConfig.getInstance();
+
+		if (event.getEntity() instanceof Wolf) {
+			Wolf wolf = (Wolf)event.getEntity();
+			if (wolf.isTamed()) {
+				List<Player> players = wolf.getWorld().getPlayers();
+				if (players.size() > 0) {
+					for (Player player : players) {
+						if (player.getName().equalsIgnoreCase(ProtectingWolfLibrary.getWolfOwnerName(wolf))) {
+							if (config.getValue(player, ProtectingWolfConfig.CONFIG_INVINCIBLE) == 1) {
+								event.setCancelled(true);
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	@Override
 	public void onEntityDeath(EntityDeathEvent event) {
 		ProtectingWolfVictims victims = ProtectingWolfVictims.getInstance();
-		
+
 		if (victims.isMonsterUnderAttack(event.getEntity().getEntityId())) {
 			this.handleDeadMonster(event);
 		}
@@ -67,7 +90,7 @@ public class ProtectingWolfEntityListener extends EntityListener {
 			this.handleDeadPlayer(event);
 		}
 	}
-	
+
 	private void handleDeadMonster(EntityDeathEvent event) {
 		ProtectingWolfVictims victims = ProtectingWolfVictims.getInstance();
 		ProtectingWolfConfig config = ProtectingWolfConfig.getInstance();
@@ -96,7 +119,7 @@ public class ProtectingWolfEntityListener extends EntityListener {
 			}
 		}
 	}
-	
+
 	private void handleDeadWolf(EntityDeathEvent event) {
 		ProtectingWolfConfig config = ProtectingWolfConfig.getInstance();
 
@@ -105,9 +128,13 @@ public class ProtectingWolfEntityListener extends EntityListener {
 			List<Player> players = deadWolf.getWorld().getPlayers();
 			if (players.size() > 0) {
 				for (Player player : players) {
-					if (player.isOnline() && player.getName().equalsIgnoreCase(ProtectingWolfLibrary.getWolfOwnerName(deadWolf))) {
-						if (config.getValue(player, ProtectingWolfConfig.CONFIG_MSGONDEATH) == 1) {
+					if (player.getName().equalsIgnoreCase(ProtectingWolfLibrary.getWolfOwnerName(deadWolf))) {
+						if (player.isOnline() && config.getValue(player, ProtectingWolfConfig.CONFIG_MSGONDEATH) == 1) {
 							player.sendMessage(ChatColor.RED + " One of your dogs died.");
+						}
+						if (config.getValue(player, ProtectingWolfConfig.CONFIG_RESPAWN) == 1) {
+							int time = config.getValue(player, ProtectingWolfConfig.CONFIG_RESPAWNTIME);
+							ProtectingWolfRespawn.getInstance().addEntry(deadWolf, player, time);
 						}
 						break;
 					}
@@ -115,7 +142,7 @@ public class ProtectingWolfEntityListener extends EntityListener {
 			}
 		}
 	}
-	
+
 	private void handleDeadPlayer(EntityDeathEvent event) {
 		ProtectingWolfVictims victims = ProtectingWolfVictims.getInstance();
 

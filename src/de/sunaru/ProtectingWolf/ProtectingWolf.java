@@ -13,7 +13,7 @@ public class ProtectingWolf extends JavaPlugin {
 	private final ProtectingWolfPlayerListener playerListener = new ProtectingWolfPlayerListener(this);
 	private static int schedulerId = -1;
 	static final Logger log = Logger.getLogger("Minecraft");
-	
+
 	static String pluginPrefix = "";
 	static String pluginVersion = "";
 
@@ -22,18 +22,21 @@ public class ProtectingWolf extends JavaPlugin {
 		PluginManager pm = this.getServer().getPluginManager();
 		pm.registerEvent(Event.Type.ENTITY_TARGET, entityListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.ENTITY_DEATH, entityListener, Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLAYER_KICK, playerListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLAYER_TELEPORT, playerListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLAYER_INTERACT_ENTITY, playerListener, Event.Priority.Normal, this);
-		
+
 		ProtectingWolfConfig.getInstance().loadConfig();
-		
-		this.getCommand("pwolf").setExecutor(new ProtectingWolfCommands(this));
-		
+
+		ProtectingWolfCommands commands = new ProtectingWolfCommands(this);
+		this.getCommand("pwolf").setExecutor(commands);
+		this.getCommand("pwcall").setExecutor(commands);
+
 		ProtectingWolfScheduler wolfScheduler = new ProtectingWolfScheduler(this);
-		schedulerId = this.getServer().getScheduler().scheduleSyncRepeatingTask(this, wolfScheduler, 100L, 600L);
-		
+		schedulerId = this.getServer().getScheduler().scheduleSyncRepeatingTask(this, wolfScheduler, 100L, 20L);
+
 		PluginDescriptionFile pdfFile = this.getDescription();
 		pluginVersion = pdfFile.getVersion();
 		pluginPrefix= "[" + pdfFile.getName() + "]";
@@ -43,7 +46,7 @@ public class ProtectingWolf extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		this.getServer().getScheduler().cancelTask(schedulerId);
-		
+
 		log.log(Level.INFO, pluginPrefix + " Plugin v" + pluginVersion + " has been disabled.");
 	}
 }

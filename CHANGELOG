@@ -4,6 +4,15 @@ ProtectingWolf Changelog
 For more information see:
 https://github.com/haruka/ProtectingWolf
 
+Version 0.6.0
+------------- -- -
+ + Permissions
+ + Wolves can be invincible
+ + Wolves may respawn
+ + Restrict wolves per player
+ + Get owner by right-click
+ + /pwcall-Command
+
 Version 0.5.0
 ------------- -- -
  + Works with new config-system

@@ -5,7 +5,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.craftbukkit.entity.CraftWolf;
+import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -18,7 +21,6 @@ public class ProtectingWolfLibrary {
 		return wolf.getHandle().getOwnerName();
 	}
 
-	/** @deprecated */
 	public static List<Wolf> getAllWolves(Player player) {
 		List<Wolf> wolves = new ArrayList<Wolf>();
 
@@ -34,7 +36,7 @@ public class ProtectingWolfLibrary {
 
 		return wolves;
 	}
-	
+
 	public static List<Wolf> getNearByWolves(Player player) {
 		List<Wolf> wolves = new ArrayList<Wolf>();
 
@@ -62,20 +64,22 @@ public class ProtectingWolfLibrary {
 
 		return wolves;
 	}
-		
+
 	public static boolean actionWolfAttack(Player player, Wolf wolf, Entity entity) {
 		return actionWolfAttack(player, wolf, entity, null, false);
 	}
-	
+
 	public static boolean actionWolfAttack(Player player, Wolf wolf, Entity entity, boolean forceAttack) {
 		return actionWolfAttack(player, wolf, entity, null, forceAttack);
 	}
-	
+
 	public static boolean actionWolfAttack(Player player, Wolf wolf, Entity entity, Entity oldVictim) {
 		return actionWolfAttack(player, wolf, entity, oldVictim, false);
 	}
 
 	public static boolean actionWolfAttack(Player player, Wolf wolf, Entity newVictim, Entity oldVictim, boolean forceAttack) {
+		ProtectingWolfConfig config = ProtectingWolfConfig.getInstance();
+
 		if (wolf.getTarget() != null) {
 			if (oldVictim != null) {
 				if (wolf.getTarget().getEntityId() != oldVictim.getEntityId()) {
@@ -90,13 +94,13 @@ public class ProtectingWolfLibrary {
 		}
 
 		if (wolf.getHealth() <= 5) {
-			if (ProtectingWolfConfig.getInstance().getValue(player, ProtectingWolfConfig.CONFIG_TILLDEATH) == 0) {
+			if (config.getValue(player, ProtectingWolfConfig.CONFIG_TILLDEATH) == 0) {
 				return false;
 			}
 		}
 
 		if (wolf.isSitting()) {
-			if (ProtectingWolfConfig.getInstance().getValue(player, ProtectingWolfConfig.CONFIG_SITISSIT) == 1) {
+			if (config.getValue(player, ProtectingWolfConfig.CONFIG_SITISSIT) == 1) {
 				return false;
 			}
 		}
@@ -120,6 +124,51 @@ public class ProtectingWolfLibrary {
 		return false;
 	}
 
+	public static void callWolves(Player player, int count) {
+		List<Wolf> wolves = getAllWolves(player);
+		if (wolves.size() > 0) {
+			int n = 0;
+			while (n < wolves.size() && n < count) {
+				Wolf wolf = (Wolf)wolves.get(n);
+				wolf.setSitting(false);
+				wolf.teleport(player);
+				n++;
+			}
+		}
+	}
+
+	public static boolean hasTooManyWolves(Player player) {
+		ProtectingWolfConfig config = ProtectingWolfConfig.getInstance();
+
+		if (config.getValue(player, ProtectingWolfConfig.CONFIG_MAXWOLVES) == -1) {
+			return false;
+		}
+
+        if (config.getValue(player, ProtectingWolfConfig.CONFIG_UNLIMITEDWOLVES) == 1) {
+            return false;
+        }
+
+        return (ProtectingWolfLibrary.getAllWolves(player).size() >= config.getValue(player, ProtectingWolfConfig.CONFIG_MAXWOLVES));
+	}
+
+	public static void spawnDog(World world, boolean isTamed, boolean isAngry, Player player) {
+		Location location = player.isOnline() ? player.getLocation() : player.getWorld().getSpawnLocation();
+		Wolf wolf = (Wolf)world.spawnCreature(location, CreatureType.WOLF);
+		wolf.setAngry(isAngry);
+		wolf.setTamed(isTamed);
+		wolf.setHealth(20);
+		if (isTamed) {
+			wolf.setOwner(player);
+		}
+
+		if (player.isOnline()) {
+			ProtectingWolfConfig config = ProtectingWolfConfig.getInstance();
+			if (config.getValue(player, ProtectingWolfConfig.CONFIG_MSGONRESPAWN) == 1) {
+				player.sendMessage("Dog respawned");
+			}
+		}
+	}
+
 	public static Integer getHashKeyByValue(HashMap map, Object key) {
 		Iterator<Map.Entry<Integer, Player>> iter = map.entrySet().iterator();
 		while (iter.hasNext()) {
@@ -130,7 +179,7 @@ public class ProtectingWolfLibrary {
 		}
 		return null;
 	}
-	
+
 	public static int indexOf(String array[], String value) {
 		int result = -1;
 		for (int i = 0; i < array.length; i++) {
@@ -141,11 +190,11 @@ public class ProtectingWolfLibrary {
 		}
 		return result;
 	}
-	
+
 	public static boolean inArray(String hackstack[], String needle) {
 		return ((ProtectingWolfLibrary.indexOf(hackstack, needle) == -1) ? false : true);
 	}
-	
+
 	public static String stringJoin(String array[], String clue) {
 		String result = "";
 		for (int i = 0; i < array.length; i++) {

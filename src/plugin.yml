@@ -1,8 +1,79 @@
 name: ProtectingWolf
 main: de.sunaru.ProtectingWolf.ProtectingWolf
-version: 0.5.0
+version: 0.6.0
 author: h4rvk4
+
 commands:
   pwolf:
     description: Modify ProtectingWolf configuration settings.
     usage: /<command>
+  pwcall:
+    description: Call your wolves
+    usage: /<command>
+
+permissions:
+  protectingwolf.*:
+    description: Gives access to all ProtectingWolf features
+    default: true
+    children:
+      protectingwolf.call-wolves: true
+      protectingwolf.option.*: true
+  protectingwolf.call-wolves:
+    description: Brings your dogs to you
+    default: false
+  protectingwolf.option.*:
+    description: All ProtectingWolf options
+    default: true
+    children:
+      protectingwolf.option.kamikaze-dog: true
+      protectingwolf.option.till-death: true
+      protectingwolf.option.sit-is-sit: true
+      protectingwolf.option.msg-on-attack: true
+      protectingwolf.option.msg-on-peace: true
+      protectingwolf.option.msg-on-death: true
+      protectingwolf.option.attack-click: true
+      protectingwolf.option.invincible: false
+      protectingwolf.option.respawn: false
+      protectingwolf.option.respawn-time: false
+      protectingwolf.option.max-wolves: false
+      protectingwolf.option.unlimited-wolves: false
+      protectingwolf.option.msg-on-respawn: true
+  protectingwolf.option.kamikaze-dog:
+    description: Dogs attack creepers
+    default: true
+  protectingwolf.option.till-death:
+    description: Dogs fight till death
+    default: true
+  protectingwolf.option.sit-is-sit:
+    description: Sitting dogs dont stand up
+    default: true
+  protectingwolf.option.msg-on-attack:
+    description: You get a notice when your dogs attack something
+    default: true
+  protectingwolf.option.msg-on-peace:
+    description: You get a notice when your dogs finished fighting
+    default: true
+  protectingwolf.option.msg-on-death:
+    description: You get a notice when one of dogs died
+    default: true
+  protectingwolf.option.attack-click:
+    description: Right mouseclick commands dog to attack
+    default: true
+  protectingwolf.option.invincible:
+    description: Dogs cant die
+    default: op
+  protectingwolf.option.respawn:
+    description: Dog respawn after death
+    default: op
+  protectingwolf.option.respawn-time:
+    description: Seconds till dogs respawn
+    default: op
+  protectingwolf.option.max-wolves:
+    description: How much dogs can a player have?
+    default: op
+  protectingwolf.option.unlimited-wolves:
+    description: Can have unlimited wolves
+    default: op
+  protectingwolf.option.msg-on-respawn:
+    description: You get a notice when one of dogs respawned
+    default: true

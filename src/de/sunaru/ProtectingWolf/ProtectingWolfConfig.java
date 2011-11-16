@@ -7,8 +7,14 @@ import org.bukkit.entity.Player;
 
 public class ProtectingWolfConfig {
 
-	private HashMap settings[] = new HashMap[7];
-	private String settingNames[] = { "kamikaze-dog", "till-death", "sit-is-sit", "msg-on-attack", "msg-on-peace", "msg-on-death", "attack-click" };
+	private HashMap settings[] = new HashMap[13];
+	private String settingNames[] = {
+		"kamikaze-dog", "till-death", "sit-is-sit", "msg-on-attack", "msg-on-peace", "msg-on-death", "attack-click", "invincible",
+		"respawn", "respawn-time", "max-wolves", "unlimited-wolves", "msg-on-respawn"
+	};
+	private boolean settingBoolean[] = {
+		true, true, true, true, true, true, true, true, true, false, false, true, true
+	};
 
 	public static int CONFIG_KAMIKAZEDOG = 0;
 	public static int CONFIG_TILLDEATH = 1;
@@ -17,6 +23,12 @@ public class ProtectingWolfConfig {
 	public static int CONFIG_MSGONPEACE = 4;
 	public static int CONFIG_MSGONDEATH = 5;
 	public static int CONFIG_RIGHTCLICKATTACK = 6;
+	public static int CONFIG_INVINCIBLE = 7;
+	public static int CONFIG_RESPAWN = 8;
+	public static int CONFIG_RESPAWNTIME = 9;
+	public static int CONFIG_MAXWOLVES = 10;
+	public static int CONFIG_UNLIMITEDWOLVES = 11;
+	public static int CONFIG_MSGONRESPAWN = 12;
 
 	private static ProtectingWolfConfig instance = null;
 
@@ -64,6 +76,11 @@ public class ProtectingWolfConfig {
 				}
 			}
 		}
+	}
+
+	public boolean isSettingBoolean(String key) {
+		int i = ProtectingWolfLibrary.indexOf(settingNames, key);
+		return settingBoolean[i];
 	}
 
 	public int getValue(Player player, int setting) {
@@ -118,5 +135,11 @@ public class ProtectingWolfConfig {
 		settings[CONFIG_MSGONPEACE].put(null, 1);
 		settings[CONFIG_MSGONDEATH].put(null, 1);
 		settings[CONFIG_RIGHTCLICKATTACK].put(null, 0);
+		settings[CONFIG_INVINCIBLE].put(null, 0);
+		settings[CONFIG_RESPAWN].put(null, 0);
+		settings[CONFIG_RESPAWNTIME].put(null, 10);
+		settings[CONFIG_MAXWOLVES].put(null, 10);
+		settings[CONFIG_UNLIMITEDWOLVES].put(null, 1);
+		settings[CONFIG_MSGONRESPAWN].put(null, 1);
 	}
 }
